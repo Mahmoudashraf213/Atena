@@ -26,7 +26,9 @@ export const messages = {
         failToUpdatePassword: "failed to update password",
         noAccountsFound: "no accounts found",
         otpSent: "OTP sent successfully",         
-        accountCreated: "Account created successfully please check your mail to verify"
+        accountCreated: "Account created successfully please check your mail to verify",
+        otpVerified: "OTP verified successfully",
+        samePassword: "new password cannot be same as old password",
     },
     products: {
         ...generateMessage('products'),
@@ -37,7 +39,13 @@ export const messages = {
         failToCreate: "Failed to create products item",
         created: "products item created successfully",
         invalidCouponDiscount : "Invalid coupon discount value, it should be between 0 and 100",
-        invalidCouponCode: "Invalid coupon code",
-        
-    }
+        invalidCouponCode: "Invalid coupon code",        
+    },
+    file: {
+        ...generateMessage('file'),
+        required: "File is required.",
+    },
+    category: {
+        ...generateMessage('category'),
+  },
 };

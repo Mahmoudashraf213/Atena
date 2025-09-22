@@ -1,5 +1,6 @@
 import cors from 'cors';
 import { globalErrorHandling } from "./utils/appError.js";
+import { authRouter, categoryRouter, productsRouter } from './modules/index.js';
 
 export const bootStrap = (app, express) => {
     // parse req
@@ -13,7 +14,9 @@ export const bootStrap = (app, express) => {
     app.use(cors(corsOptions));
 
     // routing
-    
+    app.use('/products', productsRouter);
+    app.use('/auth', authRouter)
+    app.use('/category', categoryRouter)
     // global error
     app.use(globalErrorHandling);
 };
