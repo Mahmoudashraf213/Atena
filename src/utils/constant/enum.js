@@ -17,7 +17,7 @@ export const status = Object.freeze({
   VERIFIED: "verified",
   BLOCKED: "blocked"
 });
-export const discountTybes = Object.freeze({
+export const discountTypes = Object.freeze({
   FIXED_AMOUNT: "fixed_amount",
   PERCENTAGE: "percentage",
 });

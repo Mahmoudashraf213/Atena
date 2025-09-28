@@ -14,7 +14,7 @@ const productsRouter = Router();
 productsRouter.post('/add',
     isAuthenticated(),
     isAuthorized([roles.ADMIN]),
-    cloudUploads({}).fields([{ name : "Image" , maxCount: 1 }]),
+    cloudUploads({}).fields([{ name : "Images" , maxCount: 5 }]),
     isValid(addProductsVal),
     asyncHandler(addProducts)
 ) 
@@ -23,7 +23,7 @@ productsRouter.post('/add',
 productsRouter.put('/update/:productsId',
     isAuthenticated(),
     isAuthorized([roles.ADMIN]),
-    cloudUploads({}).fields([{ name : "Image" , maxCount: 1 }]),
+    cloudUploads({}).fields([{ name : "Images" , maxCount: 5 }]),
     isValid(updateProductsVal),
     asyncHandler(updateProducts)
 );

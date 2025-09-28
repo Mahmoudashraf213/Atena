@@ -48,4 +48,8 @@ export const messages = {
     category: {
         ...generateMessage('category'),
   },
+    coupon: {
+        ...generateMessage('coupon'),
+        discountAmount: "For percentage discount type, discount amount cannot be more than 100",
+    }
 };

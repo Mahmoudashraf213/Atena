@@ -286,3 +286,49 @@ export const getProfile = async (req, res, next) => {
         data: userExist
     })
 }
+
+// update profile
+export const updateProfile = async (req, res, next) => {
+  const { name, phone, email, password } = req.body;
+  const userId = req.authUser._id; // user from auth middleware
+
+  // Find user
+  const user = await User.findById(userId);
+  if (!user) {
+    return next(new AppError(messages.user.notExist, 404));
+  }
+
+  // If email is being updated → check if it's already taken
+  if (email && email !== user.email) {
+    const emailExists = await User.findOne({ email });
+    if (emailExists) {
+      return next(new AppError(messages.user.emailTaken, 409));
+    }
+    user.email = email;
+  }
+
+  // Update fields if provided
+  if (name) user.name = name;
+  if (phone) user.phone = phone;
+
+  // If password is provided → hash it
+  if (password) {
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    user.password = hashedPassword;
+  }
+
+  // Save
+  const updatedUser = await user.save();
+  if (!updatedUser) {
+    return next(new AppError(messages.user.failToUpdate, 500));
+  }
+
+  // Hide password in response
+  updatedUser.password = undefined;
+
+  return res.status(200).json({
+    message: messages.user.updated,
+    success: true,
+    data: updatedUser,
+  });
+};

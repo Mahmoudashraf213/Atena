@@ -28,14 +28,30 @@ const productsSchema = new Schema(
       enum: Object.values(clothingSizes), // e.g., XS, S, M, L, XL, XXL
       required: true,
     },
-    Image: {
-      secure_url: { type: String, required: true },
-      public_id: { type: String, required: true },
-    },
+    Images: [
+      {
+        secure_url: { type: String, required: true },
+        public_id: { type: String, required: true },
+      }
+    ],
     color: {
       type: String, 
       trim: true,
       required: true,
+    },
+    categoryId: {
+      type: Schema.Types.ObjectId,
+      ref: "Category",
+    },
+    couponId: {
+      type: Schema.Types.ObjectId,
+      ref: "Coupon",
+      default: null,
+    },
+    finalPrice: {
+      type: String, 
+      required: false,
+      trim: true,
     },
     createdBy: {
       type: Schema.Types.ObjectId,

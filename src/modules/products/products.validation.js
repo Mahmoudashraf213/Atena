@@ -10,8 +10,9 @@ export const addProductsVal = joi.object({
    description: generalFields.description.optional(),
    size: generalFields.size.required(),
    color : generalFields.color.required(),
-   coupon: generalFields.coupon.optional(),
-   finalPrice: generalFields.finalPrice,
+   categoryId: generalFields.objectId.required(),
+   couponId: generalFields.objectId.optional(),
+    finalPrice: generalFields.finalPrice
 })
 
 // schema for updating products
@@ -25,6 +26,8 @@ export const updateProductsVal = joi.object({
     coupon: generalFields.coupon.optional(),
     finalPrice: generalFields.finalPrice.optional(),
     productsId: generalFields.objectId.required(),
+    categoryId: generalFields.objectId.optional(),
+    couponId: generalFields.objectId.optional(),
 
 })
 

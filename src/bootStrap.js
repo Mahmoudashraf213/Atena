@@ -1,6 +1,6 @@
 import cors from 'cors';
 import { globalErrorHandling } from "./utils/appError.js";
-import { authRouter, categoryRouter, productsRouter } from './modules/index.js';
+import { authRouter, categoryRouter, couponRouter, productsRouter } from './modules/index.js';
 
 export const bootStrap = (app, express) => {
     // parse req
@@ -15,8 +15,9 @@ export const bootStrap = (app, express) => {
 
     // routing
     app.use('/products', productsRouter);
-    app.use('/auth', authRouter)
-    app.use('/category', categoryRouter)
+    app.use('/auth', authRouter);
+    app.use('/category', categoryRouter);
+    app.use('/coupon', couponRouter);
     // global error
     app.use(globalErrorHandling);
 };

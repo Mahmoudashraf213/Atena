@@ -1,7 +1,7 @@
 // import modules
 import joi from 'joi';
 import { AppError } from '../utils/appError.js';
-import { clothingSizes } from '../utils/constant/enum.js';
+import { clothingSizes, discountTypes } from '../utils/constant/enum.js';
 
 export const generalFields = {
     name: joi.string().trim(),
@@ -25,6 +25,12 @@ export const generalFields = {
     password: joi.string().pattern(new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/)),
     cPassword: joi.string().valid(joi.ref('password')),
     otp: joi.string().length(6),
+    code: joi.string().max(10),
+    discountAmount: joi.number().positive(),
+    fromDate: joi.date().greater(Date.now() - 24 * 60 * 60 * 1000),
+    toDate: joi.date().greater(joi.ref('fromDate')),
+    discountType: joi.string().valid(...Object.values(discountTypes)),
+
 };
 
 export const isValid = (schema) => {

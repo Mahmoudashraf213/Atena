@@ -26,5 +26,10 @@ export const resetPasswordVal = joi.object({
     email: generalFields.email.required(),
     newPassword: generalFields.password.required(),
     otp: generalFields.otp.required(),
+})
 
+// update profile validation schema
+export const updateProfileVal = joi.object({
+    name: generalFields.name.optional(),
+    phone: generalFields.phone.optional(),
 })
