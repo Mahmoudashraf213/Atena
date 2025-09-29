@@ -39,7 +39,11 @@ export const messages = {
         failToCreate: "Failed to create products item",
         created: "products item created successfully",
         invalidCouponDiscount : "Invalid coupon discount value, it should be between 0 and 100",
-        invalidCouponCode: "Invalid coupon code",        
+        invalidCouponCode: "Invalid coupon code",
+        noProductsFound: "No products found to update.", 
+        stockNotEnough : "Product stock is not enough",
+        addedToCart: "Product added to cart successfully",
+        deletedFromCart: "Product deleted from cart successfully",
     },
     file: {
         ...generateMessage('file'),
@@ -51,5 +55,18 @@ export const messages = {
     coupon: {
         ...generateMessage('coupon'),
         discountAmount: "For percentage discount type, discount amount cannot be more than 100",
+    },
+   discount: {
+        ...generateMessage('discount'),
+        invalidInput: "Discount and discountType are required. discountType must be 'percentage' or 'fixed'.",
+        appliedSuccessfully: "Global discount applied to all products successfully.",
+        removedSuccessfully: "Global discount removed from all products successfully.",
+   },
+   review: {
+        ...generateMessage('review'),
+   },
+    cart: {
+        ...generateMessage('cart'),
     }
+
 };

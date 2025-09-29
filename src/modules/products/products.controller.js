@@ -1,4 +1,4 @@
-import { Category, Coupon, products } from "../../../db/index.js";
+import { Category, products } from "../../../db/index.js";
 import { AppError } from "../../utils/appError.js";
 import cloudinary, { deleteCloudImage } from "../../utils/cloud.js";
 import { discountTypes } from "../../utils/constant/enum.js";
@@ -6,7 +6,7 @@ import { messages } from "../../utils/constant/messages.js";
 
 // Add products
 export const addProducts = async (req, res, next) => {
-  const { name, price, quantity, description, size, color, categoryId, couponId } = req.body;
+  const { name, price, quantity, description, size, color, categoryId, discount, discountType } = req.body;
 
   // Convert name to lowercase for consistency
   const formattedName = name?.toLowerCase();
@@ -21,15 +21,6 @@ export const addProducts = async (req, res, next) => {
   const category = await Category.findById(categoryId);
   if (!category) {
     return next(new AppError(messages.category.notExist, 404));
-  }
-
-  // Check if coupon exists (optional)
-  let coupon = null;
-  if (couponId) {
-    coupon = await Coupon.findById(couponId);
-    if (!coupon) {
-      return next(new AppError(messages.coupon.notExist, 404));
-    }
   }
 
   // Handle multiple image uploads
@@ -54,29 +45,18 @@ export const addProducts = async (req, res, next) => {
     }
   }
 
-  // Calculate final price
-  let finalPrice = price;
-  if (coupon) {
-    if (coupon.discountType === discountTypes.PERCENTAGE) {
-      finalPrice = price - (price * coupon.discountAmount / 100);
-    } else if (coupon.discountType === discountTypes.FIXED_AMOUNT) {
-      finalPrice = price - coupon.discountAmount;
-    }
-    if (finalPrice < 0) finalPrice = 0;
-  }
-
-  // Create new product instance
+  // Create new product instance (without finalPrice)
   const product = new products({
     name: formattedName,
     price: `${price} EGP`,
-    finalPrice: `${finalPrice} EGP`,
+    discount: discount || 0,
+    discountType: discountType || discountTypes.PERCENTAGE,
     quantity,
     description,
     size,
     color,
-    Images, 
+    Images,
     categoryId,
-    couponId: couponId || null,
     createdBy: req.authUser._id,
   });
 
@@ -91,10 +71,8 @@ export const addProducts = async (req, res, next) => {
     return next(new AppError(messages.products.failToCreate, 500));
   }
 
-  // Populate category and coupon
-  newProduct = await products.findById(newProduct._id)
-    .populate("categoryId")
-    .populate("couponId");
+  // Populate category
+  newProduct = await products.findById(newProduct._id).populate("categoryId");
 
   // Send response
   res.status(201).json({
@@ -107,116 +85,99 @@ export const addProducts = async (req, res, next) => {
 // Update products
 export const updateProducts = async (req, res, next) => {
   const { productsId } = req.params;
-  const { name, price, quantity, description, size, color, couponId, categoryId } = req.body;
+  const { name, price, quantity, description, size, color, categoryId, discount, discountType } = req.body;
 
-  //  Find product
-  const product = await products.findById(productsId);
+  // Find existing product
+  let product = await products.findById(productsId);
   if (!product) {
     return next(new AppError(messages.products.notExist, 404));
   }
 
-  //  Normalize name
+  // Convert name to lowercase if provided
   const formattedName = name ? name.toLowerCase() : undefined;
 
-  //  Check for duplicate name
-  if (formattedName) {
-    const existingProduct = await products.findOne({
-      name: formattedName,
-      _id: { $ne: productsId },
-    });
-    if (existingProduct) {
-      return next(new AppError(messages.products.alreadyExist, 400));
-    }
-    product.name = formattedName;
-  }
-
-  req.failImages = [];
-
-  //  Handle replacing images
-  if (req.files?.Images && req.files.Images.length > 0) {
-    // Delete old images first
-    if (product.Images?.length > 0) {
-      for (let oldImg of product.Images) {
-        await deleteCloudImage(oldImg.public_id);
-      }
-    }
-
-    let uploadedImages = [];
-    try {
-      for (let file of req.files.Images) {
-        const { secure_url, public_id } = await cloudinary.uploader.upload(file.path, {
-          folder: "Atena/products",
-        });
-        uploadedImages.push({ secure_url, public_id });
-      }
-
-      // Replace old images with new ones
-      product.Images = uploadedImages;
-      req.failImages = uploadedImages.map(img => img.public_id);
-    } catch (error) {
-      // Rollback uploaded images
-      for (let img of uploadedImages) {
-        await deleteCloudImage(img.public_id);
-      }
-      return next(new AppError(messages.products.failToUpdate, 500));
-    }
-  }
-
-  //  Update other fields
-  if (price !== undefined) product.price = `${price} EGP`;
-  if (quantity !== undefined) product.quantity = quantity;
-  if (description) product.description = description;
-  if (size) product.size = size;
-  if (color) product.color = color;
-
-  //  Update category
+  // If category is being updated, check if it exists
   if (categoryId) {
     const category = await Category.findById(categoryId);
     if (!category) {
       return next(new AppError(messages.category.notExist, 404));
     }
-    product.categoryId = categoryId;
   }
 
-  //  Handle coupon & final price
-  let numericPrice = price !== undefined ? parseFloat(price) : parseFloat(product.price);
-  if (couponId) {
-    const coupon = await Coupon.findById(couponId);
-    if (!coupon) {
-      return next(new AppError(messages.coupon.notExist, 404));
+  // Handle updating images
+  let newImages = [];
+  if (req.files?.Images && req.files.Images.length > 0) {
+    try {
+      // Delete old images from Cloudinary
+      if (product.Images && product.Images.length > 0) {
+        for (let img of product.Images) {
+          await deleteCloudImage(img.public_id);
+        }
+      }
+
+      // Upload new images
+      for (let file of req.files.Images) {
+        const { secure_url, public_id } = await cloudinary.uploader.upload(file.path, {
+          folder: "Atena/products",
+        });
+        newImages.push({ secure_url, public_id });
+      }
+      req.failImages = newImages.map(img => img.public_id); // track for rollback
+    } catch (error) {
+      // rollback uploaded images if error
+      if (newImages.length > 0) {
+        for (let img of newImages) {
+          await deleteCloudImage(img.public_id);
+        }
+      }
+      return next(new AppError(messages.products.failToUpdate, 500));
     }
+  }
 
-    product.couponId = couponId;
+  // Calculate final price if price/discount changed
+  let finalPrice = product.finalPrice;
+  const updatedPrice = price !== undefined ? price : parseFloat(product.price);
+  const updatedDiscount = discount !== undefined ? discount : product.discount;
+  const updatedDiscountType = discountType || product.discountType;
 
-    let finalPrice = numericPrice;
-    if (coupon.discountType === "percentage") {
-      finalPrice -= (finalPrice * coupon.discountAmount) / 100;
-    } else if (coupon.discountType === "fixed_amount") {
-      finalPrice -= coupon.discountAmount;
+  if (updatedDiscount && updatedDiscount > 0) {
+    if (updatedDiscountType === discountTypes.PERCENTAGE) {
+      finalPrice = updatedPrice - (updatedPrice * updatedDiscount / 100);
+    } else if (updatedDiscountType === discountTypes.FIXED_AMOUNT) {
+      finalPrice = updatedPrice - updatedDiscount;
     }
     if (finalPrice < 0) finalPrice = 0;
-
-    product.finalPrice = `${finalPrice.toFixed(2)} EGP`;
   } else {
-    product.finalPrice = `${numericPrice.toFixed(2)} EGP`;
-    product.couponId = null;
+    finalPrice = updatedPrice;
   }
 
-  //  Save updated product
-  const updatedProduct = await product.save();
+  // Update product fields
+  product.name = formattedName || product.name;
+  product.price = price !== undefined ? `${updatedPrice} EGP` : product.price;
+  product.finalPrice = `${finalPrice} EGP`;  
+  product.discount = updatedDiscount;
+  product.discountType = updatedDiscountType;
+  product.quantity = quantity ?? product.quantity;
+  product.description = description ?? product.description;
+  product.size = size ?? product.size;
+  product.color = color ?? product.color;
+  product.categoryId = categoryId ?? product.categoryId;
+  if (newImages.length > 0) product.Images = newImages;
+
+  // Save updated product
+  let updatedProduct = await product.save();
   if (!updatedProduct) {
     return next(new AppError(messages.products.failToUpdate, 500));
   }
 
-  //  Populate for response
-  await updatedProduct.populate([
-    { path: "categoryId", select: "name slug" },
-    { path: "couponId", select: "code discountAmount discountType fromDate toDate" },
-  ]);
+  // Populate category
+  updatedProduct = await products.findById(updatedProduct._id)
+    .populate("categoryId");
 
-  return res.status(200).json({
-    message: messages.products.updated,
+  // Send response
+  res.status(200).json({
     success: true,
+    message: messages.products.updated,
     data: updatedProduct,
   });
 };
@@ -288,5 +249,85 @@ export const deleteProductsById = async (req, res, next) => {
   return res.status(200).json({
     message: messages.products.deleted,
     success: true,
+  });
+};
+
+
+// add global discount to all products
+export const addGlobalDiscount = async (req, res, next) => {
+  const { discount, discountType } = req.body;
+
+  // Fetch all products
+  const allProducts = await products.find();
+
+  // Build bulk update operations
+  const bulkUpdates = allProducts.map((product) => {
+    // Convert "199 EGP" -> 199
+    const priceValue = parseFloat(product.price);
+
+    let finalPrice = priceValue;
+
+    if (discountType === discountTypes.PERCENTAGE) {
+      finalPrice = priceValue - (priceValue * discount) / 100;
+    } else if (discountType === discountTypes.FIXED_AMOUNT) {
+      finalPrice = priceValue - discount;
+    }
+
+    if (finalPrice < 0) finalPrice = 0;
+
+    return {
+      updateOne: {
+        filter: { _id: product._id },
+        update: {
+          discount,
+          discountType,
+          finalPrice: `${finalPrice.toFixed(2)} EGP`, 
+        },
+      },
+    };
+  });
+
+  await products.bulkWrite(bulkUpdates);
+
+  return res.status(200).json({
+    success: true,
+    message: messages.discount.appliedSuccessfully,
+  });
+};
+
+// removing global discount from all products
+export const removeGlobalDiscount = async (req, res, next) => {
+  // Fetch all products
+  const allProducts = await products.find();
+
+  if (!allProducts.length) {
+    return res.status(404).json({
+      success: false,
+      message: messages.products.noProductsFound,
+    });
+  }
+
+  // Build bulk update operations
+  const bulkUpdates = allProducts.map((product) => {
+    // (if price saved as string)
+    const priceValue = parseFloat(product.price);
+
+    return {
+      updateOne: {
+        filter: { _id: product._id },
+        update: {
+          discount: 0,
+          discountType: null,
+          finalPrice: `${priceValue.toFixed(2)} EGP`, 
+        },
+      },
+    };
+  });
+
+  await products.bulkWrite(bulkUpdates);
+
+  return res.status(200).json({
+    success: true,
+    message: messages.discount.removedSuccessfully,
   });
 };

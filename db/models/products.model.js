@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { clothingSizes} from "../../src/utils/constant/enum.js";
+import { clothingSizes, discountTypes} from "../../src/utils/constant/enum.js";
 
 // schema
 const productsSchema = new Schema(
@@ -39,19 +39,23 @@ const productsSchema = new Schema(
       trim: true,
       required: true,
     },
+    discount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    discountType: {
+      type: String,
+      enum: Object.values(discountTypes),
+      default: discountTypes.PERCENTAGE
+    },
+    finalPrice: {
+      type: String,
+      trim: true,
+    },
     categoryId: {
       type: Schema.Types.ObjectId,
       ref: "Category",
-    },
-    couponId: {
-      type: Schema.Types.ObjectId,
-      ref: "Coupon",
-      default: null,
-    },
-    finalPrice: {
-      type: String, 
-      required: false,
-      trim: true,
     },
     createdBy: {
       type: Schema.Types.ObjectId,

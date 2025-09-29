@@ -11,8 +11,8 @@ export const addProductsVal = joi.object({
    size: generalFields.size.required(),
    color : generalFields.color.required(),
    categoryId: generalFields.objectId.required(),
-   couponId: generalFields.objectId.optional(),
-    finalPrice: generalFields.finalPrice
+   discount: generalFields.discount.optional(),
+   discountType: generalFields.discountType.optional(),
 })
 
 // schema for updating products
@@ -23,12 +23,10 @@ export const updateProductsVal = joi.object({
     description: generalFields.description.optional(),
     size: generalFields.size.optional(),
     color: generalFields.color.optional(),
-    coupon: generalFields.coupon.optional(),
-    finalPrice: generalFields.finalPrice.optional(),
     productsId: generalFields.objectId.required(),
     categoryId: generalFields.objectId.optional(),
-    couponId: generalFields.objectId.optional(),
-
+    discount: generalFields.discount.optional(),
+    discountType: generalFields.discountType.optional(),
 })
 
 // schema for getting products by id
@@ -40,3 +38,11 @@ export const getProductsByIdVal = joi.object({
 export const deleteProductsByIdVal = joi.object({
     productsId: generalFields.objectId.required(),
 });
+
+// schema for adding global discount
+export const addGlobalDiscountVal = joi.object({
+    discount: generalFields.discount.required(),
+    discountType: generalFields.discountType.required(),
+});
+
+

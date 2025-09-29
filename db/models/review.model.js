@@ -16,7 +16,7 @@ const schema = new Schema({
     },
     product: {
         type: Types.ObjectId,
-        ref: 'Product',
+        ref: 'Products',
         required: true
     },
     isVerified: Boolean

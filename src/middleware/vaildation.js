@@ -30,7 +30,9 @@ export const generalFields = {
     fromDate: joi.date().greater(Date.now() - 24 * 60 * 60 * 1000),
     toDate: joi.date().greater(joi.ref('fromDate')),
     discountType: joi.string().valid(...Object.values(discountTypes)),
-
+    discount: joi.number().min(0).default(0),
+    comment: joi.string().max(500).trim(),
+    rate: joi.number().min(1).max(5).integer(),
 };
 
 export const isValid = (schema) => {

@@ -2,8 +2,8 @@ import { Router } from "express";
 import { asyncHandler } from "../../middleware/asyncHandler.js";
 import { cloudUploads } from "../../utils/multer-cloud.js";
 import { isValid } from "../../middleware/vaildation.js";
-import { addProducts, deleteProductsById, getAllProducts, getProductsById, updateProducts } from "./products.controller.js";
-import { addProductsVal, deleteProductsByIdVal, getProductsByIdVal, updateProductsVal } from "./products.validation.js";
+import { addGlobalDiscount, addProducts, deleteProductsById, getAllProducts, getProductsById, removeGlobalDiscount, updateProducts } from "./products.controller.js";
+import { addGlobalDiscountVal, addProductsVal, deleteProductsByIdVal, getProductsByIdVal, updateProductsVal } from "./products.validation.js";
 import { isAuthenticated } from "../../middleware/authentication.js";
 import { isAuthorized } from "../../middleware/autheraization.js";
 import { roles } from "../../utils/constant/enum.js";
@@ -44,11 +44,26 @@ productsRouter.get('/:productsId',
 );
 
 // Delete products item by ID
-productsRouter.delete('/:productsId',
+productsRouter.delete('/delete/:productsId',
     isAuthenticated(),
     isAuthorized([roles.ADMIN]),
     isValid(deleteProductsByIdVal),
     asyncHandler(deleteProductsById)
 );
+
+// Only admin can apply global discount
+productsRouter.put('/discount',
+    isAuthenticated(),
+    isAuthorized([roles.ADMIN]),
+    isValid(addGlobalDiscountVal),
+    asyncHandler(addGlobalDiscount)
+)
+
+// Remove global discount - only admin
+productsRouter.delete('/discount',
+    isAuthenticated(),
+    isAuthorized([roles.ADMIN]),
+    asyncHandler(removeGlobalDiscount)
+)
 
 export default productsRouter
