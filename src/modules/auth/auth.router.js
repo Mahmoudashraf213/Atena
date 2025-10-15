@@ -56,7 +56,7 @@ authRouter.put('/profile',
 )
 
 // signup with google
-authRouter.get('/google', passport.authenticate("google", { scope: ['profile', 'email'], session: false }));
+authRouter.get("/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
 
 // google auth callback
 authRouter.get(
