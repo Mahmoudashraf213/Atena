@@ -2,9 +2,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { User } from "../../db/index.js";
 import { generateToken } from "./token.js";
-import dotenv from "dotenv";
 
-dotenv.config();
 
 passport.use(
   new GoogleStrategy(
