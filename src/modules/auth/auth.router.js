@@ -1,5 +1,4 @@
 import { Router } from "express";
-import passport from "passport";
 import { isValid } from "../../middleware/vaildation.js";
 import { fcmTokenVal, forgetPasswordVal, loginVal, resetPasswordVal, signupVal, updateProfileVal } from "./auth.validation.js";
 import { asyncHandler } from "../../middleware/asyncHandler.js";
@@ -7,6 +6,7 @@ import { forgetPassword, getProfile, login, loginGoogle, signup, updateFcmToken,
 import { roles } from "../../utils/constant/enum.js";
 import { isAuthenticated } from "../../middleware/authentication.js";
 import { isAuthorized } from "../../middleware/autheraization.js";
+import passport from "../../utils/passport.js";
 
 const authRouter = Router();
 

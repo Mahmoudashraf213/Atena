@@ -10,35 +10,31 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "https://atena-beta.vercel.app/auth/google/callback",
     },
-    (accessToken, refreshToken, profile, done) => {
-      const email = profile.emails[0].value;
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const email = profile.emails[0].value;
 
-      User.findOne({ email })
-        .then((existingUser) => {
-          if (existingUser) return existingUser;
-
-          const newUser = new User({
+        let user = await User.findOne({ email });
+        if (!user) {
+          user = await User.create({
             name: profile.displayName,
-            email: profile.emails[0].value,
+            email,
             password: null,
             status: "verified",
             otpVerified: true,
           });
+        }
 
-          return newUser.save();
-        })
-        .then((user) => {
-          const token = generateToken({
-            payload: { email: user.email, _id: user._id, role: user.role },
-          });
-          done(null, { user, token });
-        })
-        .catch((error) => done(error, null));
+        const token = generateToken({
+          payload: { email: user.email, _id: user._id, role: user.role },
+        });
+
+        return done(null, { user, token });
+      } catch (error) {
+        done(error, null);
+      }
     }
   )
 );
-
-passport.serializeUser((user, done) => done(null, user));
-passport.deserializeUser((obj, done) => done(null, obj));
 
 export default passport;
