@@ -30,7 +30,8 @@ export const messages = {
         otpVerified: "OTP verified successfully",
         samePassword: "new password cannot be same as old password",
         notHaveCart: "user does not have a cart",
-        fcmUpdated: "FCM token updated successfully"
+        fcmUpdated: "FCM token updated successfully",
+        missingGoogleToken: "Missing Google token",
     },
     products: {
         ...generateMessage('products'),

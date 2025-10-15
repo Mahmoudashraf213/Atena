@@ -336,15 +336,23 @@ export const updateProfile = async (req, res, next) => {
 
 // loginGoogle
 export const loginGoogle = async (req, res, next) => {
-    // get data from req
+    //  Ensure token exists from passport
+    if (!req.user || !req.user.token) {
+        return res.status(400).json({
+            message: messages.user.missingGoogleToken, // Use messages for missing token
+            success: false,
+        });
+    }
+
+    // Extract token from req.user (created in passport callback)
     const { token } = req.user;
 
+    // Deep link for your mobile app (adjust if needed)
     const deepLink = `myapp://auth?token=${token}`;
 
-    // send res 
+    //  Redirect user back to mobile app
     return res.redirect(deepLink);
-
-}
+};
 
 
 // update fcm token
