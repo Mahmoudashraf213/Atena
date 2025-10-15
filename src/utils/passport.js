@@ -21,7 +21,7 @@ passport.use(
           // Create a new user if not found
           const newUser = new User({
             name: profile.displayName,
-            email,
+            email:emails[0].value,
             password: null,
             status: "verified", // from your enum
             otpVerified: true,
