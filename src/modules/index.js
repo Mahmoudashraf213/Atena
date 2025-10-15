@@ -4,4 +4,5 @@ import categoryRouter from "./category/category.router.js";
 import couponRouter from "./coupon/coupon.router.js";
 import reviewRouter from "./review/review.router.js";
 import cartRouter from "./cart/cart.router.js";
-export { productsRouter , authRouter , categoryRouter , couponRouter , reviewRouter , cartRouter};
+import orderRouter from "./order/order.router.js";
+export { productsRouter , authRouter , categoryRouter , couponRouter , reviewRouter , cartRouter , orderRouter};

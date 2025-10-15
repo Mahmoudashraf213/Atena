@@ -29,6 +29,8 @@ export const messages = {
         accountCreated: "Account created successfully please check your mail to verify",
         otpVerified: "OTP verified successfully",
         samePassword: "new password cannot be same as old password",
+        notHaveCart: "user does not have a cart",
+        fcmUpdated: "FCM token updated successfully"
     },
     products: {
         ...generateMessage('products'),
@@ -44,6 +46,8 @@ export const messages = {
         stockNotEnough : "Product stock is not enough",
         addedToCart: "Product added to cart successfully",
         deletedFromCart: "Product deleted from cart successfully",
+        quantityLess: "Requested quantity exceeds available stock.",
+
     },
     file: {
         ...generateMessage('file'),
@@ -55,6 +59,8 @@ export const messages = {
     coupon: {
         ...generateMessage('coupon'),
         discountAmount: "For percentage discount type, discount amount cannot be more than 100",
+        notAssigned: "Coupon not assigned to user",
+        couponExpired: "Coupon is expired",
     },
    discount: {
         ...generateMessage('discount'),
@@ -67,6 +73,9 @@ export const messages = {
    },
     cart: {
         ...generateMessage('cart'),
+    },
+    order:{
+        ...generateMessage('order'),
     }
 
 };

@@ -21,3 +21,17 @@ export const discountTypes = Object.freeze({
   FIXED_AMOUNT: "fixed_amount",
   PERCENTAGE: "percentage",
 });
+
+
+export const orderStatus = Object.freeze( {
+    PENDING: "pending",
+    IN_PROGRESS: "inProgress",
+    DELIVERED: "delivered",
+    CANCELED: "canceled",
+    REFUNDED: "refunded"
+});
+
+
+export const paymentMethods = Object.freeze( {
+    CASH: "cash",
+});

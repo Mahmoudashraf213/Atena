@@ -71,6 +71,10 @@ export const addProducts = async (req, res, next) => {
     return next(new AppError(messages.products.failToCreate, 500));
   }
 
+  // Push product ID to category
+  category.products.push(newProduct._id);
+  await category.save();
+
   // Populate category
   newProduct = await products.findById(newProduct._id).populate("categoryId");
 

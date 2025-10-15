@@ -1,7 +1,7 @@
 // import modules
 import joi from 'joi';
 import { AppError } from '../utils/appError.js';
-import { clothingSizes, discountTypes } from '../utils/constant/enum.js';
+import { clothingSizes, discountTypes, orderStatus, paymentMethods } from '../utils/constant/enum.js';
 
 export const generalFields = {
     name: joi.string().trim(),
@@ -33,7 +33,9 @@ export const generalFields = {
     discount: joi.number().min(0).default(0),
     comment: joi.string().max(500).trim(),
     rate: joi.number().min(1).max(5).integer(),
-};
+    street: joi.string(),
+    paymentMethod: joi.string().valid(...Object.values(paymentMethods)),
+    orderStatus: joi.string().valid(...Object.values(orderStatus))};
 
 export const isValid = (schema) => {
     return (req, res, next) => {

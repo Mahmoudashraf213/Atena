@@ -32,6 +32,12 @@ const schema = new Schema({
         ref: 'User',
         required: true
     },
+        products: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Products",
+      },
+    ],
 
 
 }, {

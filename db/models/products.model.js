@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import { clothingSizes, discountTypes} from "../../src/utils/constant/enum.js";
+import { clothingSizes, discountTypes } from "../../src/utils/constant/enum.js";
 
 // schema
 const productsSchema = new Schema(
@@ -32,10 +32,10 @@ const productsSchema = new Schema(
       {
         secure_url: { type: String, required: true },
         public_id: { type: String, required: true },
-      }
+      },
     ],
     color: {
-      type: String, 
+      type: String,
       trim: true,
       required: true,
     },
@@ -47,7 +47,7 @@ const productsSchema = new Schema(
     discountType: {
       type: String,
       enum: Object.values(discountTypes),
-      default: discountTypes.PERCENTAGE
+      default: discountTypes.PERCENTAGE,
     },
     finalPrice: {
       type: String,
@@ -65,6 +65,9 @@ const productsSchema = new Schema(
   },
   { timestamps: true }
 );
+productsSchema.methods.inStock = function (quantity) {
+  return this.quantity >= quantity; // Check if the stock is sufficient
+};
 
 // model
 export const products = model("Products", productsSchema);

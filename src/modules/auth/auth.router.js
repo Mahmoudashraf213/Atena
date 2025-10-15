@@ -1,8 +1,9 @@
 import { Router } from "express";
+import passport from "passport";
 import { isValid } from "../../middleware/vaildation.js";
-import { forgetPasswordVal, loginVal, resetPasswordVal, signupVal, updateProfileVal } from "./auth.validation.js";
+import { fcmTokenVal, forgetPasswordVal, loginVal, resetPasswordVal, signupVal, updateProfileVal } from "./auth.validation.js";
 import { asyncHandler } from "../../middleware/asyncHandler.js";
-import { forgetPassword, getProfile, login, signup, updateProfile, verifyAccount, verifyOtpAndResetPassword } from "./auth.controller.js";
+import { forgetPassword, getProfile, login, loginGoogle, signup, updateFcmToken, updateProfile, verifyAccount, verifyOtpAndResetPassword } from "./auth.controller.js";
 import { roles } from "../../utils/constant/enum.js";
 import { isAuthenticated } from "../../middleware/authentication.js";
 import { isAuthorized } from "../../middleware/autheraization.js";
@@ -52,5 +53,24 @@ authRouter.put('/profile',
     isAuthorized([roles.USER, roles.ADMIN]),
     isValid(updateProfileVal),
     asyncHandler(updateProfile)
+)
+
+// signup with google
+authRouter.get('/google', passport.authenticate("google", { scope: ['profile', 'email'], session: false }));
+
+// google auth callback
+authRouter.get(
+    "/google/callback",
+    passport.authenticate("google", { failureRedirect: "/login", session: false },),
+    asyncHandler(loginGoogle),
+);
+
+
+// update fcm token
+authRouter.put('/fcm',
+    isAuthenticated(),
+    isAuthorized([roles.USER, roles.ADMIN]),
+    isValid(fcmTokenVal),
+    asyncHandler(updateFcmToken)
 )
 export default authRouter;

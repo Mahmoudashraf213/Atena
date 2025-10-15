@@ -33,3 +33,9 @@ export const updateProfileVal = joi.object({
     name: generalFields.name.optional(),
     phone: generalFields.phone.optional(),
 })
+
+
+// fcm token validation schema
+export const fcmTokenVal = joi.object({
+    fcmToken: generalFields.name.required()
+})
