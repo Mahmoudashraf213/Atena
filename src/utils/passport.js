@@ -2,44 +2,47 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { User } from "../../db/index.js";
 import { generateToken } from "./token.js";
+import dotenv from "dotenv";
 
+dotenv.config();
 
 passport.use(
-    new GoogleStrategy(
-        {
-            clientID: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: "https://atena-psi.vercel.app/auth/google/callback",
-        },
-        async (accessToken, refreshToken, profile, done) => {
-            try {
-                let user = await User.findOne({ email: profile.emails[0].value });
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "https://atena-beta.vercel.app/auth/google/callback",
+    },
+    (accessToken, refreshToken, profile, done) => {
+      const email = profile.emails[0].value;
 
-                if (!user) {
-                    user = new User({
-                        userName: profile.displayName,
-                        email: profile.emails[0].value,
-                        password: null, // not responce with google
-                        isVerified: true, // because his verified by google
-                    });
-                    await user.save();
-                }
+      User.findOne({ email })
+        .then((existingUser) => {
+          if (existingUser) return existingUser;
 
-                const token = generateToken({ payload: { email: user.email, _id: user._id } });
-                return done(null, { user, token });
-            } catch (error) {
-                return done(error, null);
-            }
-        }
-    )
+          // Create a new user if not found
+          const newUser = new User({
+            name: profile.displayName,
+            email,
+            password: null,
+            status: "verified", // from your enum
+            otpVerified: true,
+          });
+
+          return newUser.save();
+        })
+        .then((user) => {
+          const token = generateToken({
+            payload: { email: user.email, _id: user._id, role: user.role },
+          });
+          done(null, { user, token });
+        })
+        .catch((error) => done(error, null));
+    }
+  )
 );
 
-passport.serializeUser((user, done) => {
-    done(null, user);
-});
-
-passport.deserializeUser((obj, done) => {
-    done(null, obj);
-});
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((obj, done) => done(null, obj));
 
 export default passport;
