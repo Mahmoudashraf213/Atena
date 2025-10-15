@@ -2,9 +2,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { User } from "../../db/index.js";
 import { generateToken } from "./token.js";
-import dotenv from "dotenv";
 
-dotenv.config();
 
 passport.use(
   new GoogleStrategy(
@@ -23,7 +21,7 @@ passport.use(
           // Create a new user if not found
           const newUser = new User({
             name: profile.displayName,
-            email,
+            email:emails[0].value,
             password: null,
             status: "verified", // from your enum
             otpVerified: true,
