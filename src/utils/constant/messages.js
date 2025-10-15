@@ -26,7 +26,11 @@ export const messages = {
         failToUpdatePassword: "failed to update password",
         noAccountsFound: "no accounts found",
         otpSent: "OTP sent successfully",         
-        accountCreated: "Account created successfully please check your mail to verify"
+        accountCreated: "Account created successfully please check your mail to verify",
+        otpVerified: "OTP verified successfully",
+        samePassword: "new password cannot be same as old password",
+        notHaveCart: "user does not have a cart",
+        fcmUpdated: "FCM token updated successfully"
     },
     products: {
         ...generateMessage('products'),
@@ -38,6 +42,40 @@ export const messages = {
         created: "products item created successfully",
         invalidCouponDiscount : "Invalid coupon discount value, it should be between 0 and 100",
         invalidCouponCode: "Invalid coupon code",
-        
+        noProductsFound: "No products found to update.", 
+        stockNotEnough : "Product stock is not enough",
+        addedToCart: "Product added to cart successfully",
+        deletedFromCart: "Product deleted from cart successfully",
+        quantityLess: "Requested quantity exceeds available stock.",
+
+    },
+    file: {
+        ...generateMessage('file'),
+        required: "File is required.",
+    },
+    category: {
+        ...generateMessage('category'),
+  },
+    coupon: {
+        ...generateMessage('coupon'),
+        discountAmount: "For percentage discount type, discount amount cannot be more than 100",
+        notAssigned: "Coupon not assigned to user",
+        couponExpired: "Coupon is expired",
+    },
+   discount: {
+        ...generateMessage('discount'),
+        invalidInput: "Discount and discountType are required. discountType must be 'percentage' or 'fixed'.",
+        appliedSuccessfully: "Global discount applied to all products successfully.",
+        removedSuccessfully: "Global discount removed from all products successfully.",
+   },
+   review: {
+        ...generateMessage('review'),
+   },
+    cart: {
+        ...generateMessage('cart'),
+    },
+    order:{
+        ...generateMessage('order'),
     }
+
 };

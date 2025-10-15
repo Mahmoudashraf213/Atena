@@ -1,26 +1,41 @@
 // import modules
 import joi from 'joi';
 import { AppError } from '../utils/appError.js';
-import { clothingSizes } from '../utils/constant/enum.js';
+import { clothingSizes, discountTypes, orderStatus, paymentMethods } from '../utils/constant/enum.js';
 
 export const generalFields = {
-    name: joi.string().trim().required(),
-    price: joi.number().positive().required(),
-    quantity: joi.number().integer().min(0).required(),
-    description: joi.string().trim().optional(),
-    color: joi.string().trim().required(),
-    size: joi.string().valid(...Object.values(clothingSizes)).required(),
+    name: joi.string().trim(),
+    price: joi.number().positive(),
+    quantity: joi.number().integer().min(0),
+    description: joi.string().trim(),
+    color: joi.string().trim(),
+    size: joi.string().valid(...Object.values(clothingSizes)),
     image: joi.object({
-      secure_url: joi.string().uri().required(),
-      public_id: joi.string().required(),
-    }).required(),
+        secure_url: joi.string().uri(),
+        public_id: joi.string(),
+    }),
     coupon: joi.object({
-      code: joi.string().trim().required(),
-      discount: joi.number().min(0).max(100).required()
-  }).optional(),
+        code: joi.string().trim(),
+        discount: joi.number().min(0).max(100)
+    }),
     finalPrice: joi.string().trim(),
     objectId: joi.string().hex().length(24),
-};
+    email: joi.string().email(),
+    phone: joi.string().pattern(new RegExp(/^01[0-2,5]{1}[0-9]{8}$/)),
+    password: joi.string().pattern(new RegExp(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/)),
+    cPassword: joi.string().valid(joi.ref('password')),
+    otp: joi.string().length(6),
+    code: joi.string().max(10),
+    discountAmount: joi.number().positive(),
+    fromDate: joi.date().greater(Date.now() - 24 * 60 * 60 * 1000),
+    toDate: joi.date().greater(joi.ref('fromDate')),
+    discountType: joi.string().valid(...Object.values(discountTypes)),
+    discount: joi.number().min(0).default(0),
+    comment: joi.string().max(500).trim(),
+    rate: joi.number().min(1).max(5).integer(),
+    street: joi.string(),
+    paymentMethod: joi.string().valid(...Object.values(paymentMethods)),
+    orderStatus: joi.string().valid(...Object.values(orderStatus))};
 
 export const isValid = (schema) => {
     return (req, res, next) => {
